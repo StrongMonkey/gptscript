@@ -103,13 +103,12 @@ func copyFile(to, from string) error {
 }
 
 func (r *Runtime) copyPythonForWindows(binDir string) error {
-	for _, targetBin := range []string{"python3.exe", "python" + r.ID() + ".exe"} {
-		err := copyFile(filepath.Join(binDir, targetBin), filepath.Join(binDir, "python.exe"))
-		if err != nil {
-			return err
-		}
+	err := copyFile(filepath.Join(binDir, "python3.exe"), filepath.Join(binDir, "python.exe"))
+	if err != nil {
+		return err
 	}
-	return nil
+	// In windows, we need to copy python3.exe to an exe with version suffix so that tool can call something like python3.12 directly as window package manager does not support python3.12
+	return copyFile(filepath.Join(binDir, "python3.exe"), filepath.Join(binDir, r.ID()+".exe"))
 }
 
 func (r *Runtime) Setup(ctx context.Context, dataRoot, toolSource string, env []string) ([]string, error) {
